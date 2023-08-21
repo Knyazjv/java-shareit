@@ -1,19 +1,22 @@
 package ru.practicum.shareit.user.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.Create;
+import ru.practicum.shareit.user.dto.Update;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
-import java.lang.reflect.Field;
 import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
+@Slf4j
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
@@ -25,44 +28,38 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
+    public ResponseEntity<UserDto> createUser(@Validated({Create.class}) @RequestBody UserDto userDto) {
+        log.info("Post /users, user:{}", userDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
     }
 
-    @PatchMapping(path = "/{userid}")
-    public ResponseEntity<User> updateUser(@PathVariable Long userid, @RequestBody User newUser) {
+    @PatchMapping(path = "/{userId}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long userId,
+                                           @Validated({Update.class}) @RequestBody UserDto newUserDto) {
+        log.info("Patch /users/{}, user:{}", userId, newUserDto);
         try {
-            User user = applyUpdateToUser(newUser, userService.getUserById(userid));
-            return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(user, userid));
+            return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(newUserDto, userId));
         } catch (IllegalAccessException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping(path = "/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
+        log.info("Get /users/{}", userId);
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        log.info("Get /users");
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
     }
 
     @DeleteMapping(path = "/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        log.info("Delete /users/{}", userId);
          userService.deleteUser(userId);
         return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    private User applyUpdateToUser(User newUser, User user) throws IllegalAccessException {
-        Field[] fields = User.class.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            if (field.get(newUser) == null) {
-                field.set(newUser, field.get(user));
-            }
-        }
-        return newUser;
     }
 }

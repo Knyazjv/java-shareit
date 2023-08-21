@@ -54,7 +54,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (users.size() > 2) {
             return true;
         }
-        if (users.size() == 1 ) {
+        if (users.size() == 1) {
             return !users.get(0).getId().equals(userId);
         }
         return false;

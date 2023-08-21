@@ -49,7 +49,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleEmptyItemException(final EmptyItemException e) {
+    public ErrorResponse handleEmptyItemException(final EmptyException e) {
         log.warn("Item name or description is empty: " + e.getMessage());
         return new ErrorResponse("Error", e.getMessage());
     }

@@ -10,6 +10,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.service.MappingItem;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,22 +29,22 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto createItem(Item item, Long userId) {
+    public ItemDto createItem(ItemDto itemDto, Long userId) {
         userService.checkUserIsExist(userId);
-        return mappingItem.toDto(itemRepository.createItem(item));
+        return mappingItem.toDto(itemRepository.createItem(mappingItem.toItem(null, userId, itemDto)));
     }
 
     @Override
-    public ItemDto updateItem(Item item, Long userId) {
+    public ItemDto updateItem(ItemDto itemDto, Long userId, Long itemId) throws IllegalAccessException {
         userService.checkUserIsExist(userId);
-        checkItemIsExist(item.getId());
-        return mappingItem.toDto(itemRepository.updateItem(item));
-    }
-
-    @Override
-    public Item getItemById(Long itemId) {
         checkItemIsExist(itemId);
-        return itemRepository.getItemById(itemId);
+        Item item = itemRepository.getItemById(itemId);
+        if (!item.getUserId().equals(userId)) {
+            throw new NotFoundException("У пользователя не найдена вещь, itemId: " + itemId);
+        }
+        Item newItem = mappingItem.toItem(itemId, userId,
+                applyUpdateToItemDto(itemDto, mappingItem.toDto(item)));
+        return mappingItem.toDto(itemRepository.updateItem(newItem));
     }
 
     @Override
@@ -55,16 +56,16 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getItemsUser(Long userId) {
         userService.checkUserIsExist(userId);
-        return itemRepository.getItemsUser(userId).stream().
-                map(mappingItem::toDto).
-                collect(Collectors.toList());
+        return itemRepository.getItemsUser(userId).stream()
+                .map(mappingItem::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDto> searchItem(String text) {
-        return itemRepository.searchItem(text).stream().
-                map(mappingItem::toDto).
-                collect(Collectors.toList());
+        return itemRepository.searchItem(text).stream()
+                .map(mappingItem::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -72,5 +73,16 @@ public class ItemServiceImpl implements ItemService {
         if (!itemRepository.itemIsExist(itemId)) {
             throw new NotFoundException("Вещь не найдена, id: " + itemId);
         }
+    }
+
+    private ItemDto applyUpdateToItemDto(ItemDto newItemDto, ItemDto itemDto) throws IllegalAccessException {
+        Field[] fields = ItemDto.class.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.get(newItemDto) == null) {
+                field.set(newItemDto, field.get(itemDto));
+            }
+        }
+        return newItemDto;
     }
 }
