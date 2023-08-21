@@ -4,9 +4,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserRepositoryImpl implements UserRepository {
@@ -37,7 +39,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAllUsers() {
-        return userMap.values().stream().toList();
+        return new ArrayList<>(userMap.values());
     }
 
     @Override
@@ -50,7 +52,7 @@ public class UserRepositoryImpl implements UserRepository {
         List<User> users = userMap.values()
                 .stream()
                 .filter(user -> user.getEmail().equals(email))
-                .toList();
+                .collect(Collectors.toList());
         if (users.size() > 2) {
             return true;
         }
