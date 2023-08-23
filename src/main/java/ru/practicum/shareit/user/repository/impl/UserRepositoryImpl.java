@@ -53,7 +53,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .stream()
                 .filter(user -> user.getEmail().equals(email))
                 .collect(Collectors.toList());
-        if (users.size() > 2) {
+        if (users.size() > 1) {
             return true;
         }
         if (users.size() == 1) {

@@ -11,13 +11,11 @@ import ru.practicum.shareit.item.service.ItemService;
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequestMapping("/items")
 public class ItemController {
+    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final ItemService itemService;
 
     @Autowired
@@ -26,7 +24,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ItemDto> createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<ItemDto> createItem(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                            @Valid @RequestBody ItemDto itemDto) {
         log.info("Post /items, userId:{}, item:{}", userId, itemDto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -34,7 +32,7 @@ public class ItemController {
     }
 
     @PatchMapping(value = "/{itemId}")
-    public ResponseEntity<ItemDto> updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<ItemDto> updateItem(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                            @RequestBody ItemDto newItemDto,
                                            @PathVariable Long itemId) {
         log.info("Patch /items/{}, userId:{}, item:{}", itemId, userId, newItemDto);
@@ -52,7 +50,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemDto>> getItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ResponseEntity<List<ItemDto>> getItemsUser(@RequestHeader(X_SHARER_USER_ID) Long userId) {
         log.info("Get /items, userId:{}", userId);
         return ResponseEntity.status(HttpStatus.OK).body(itemService.getItemsUser(userId));
     }

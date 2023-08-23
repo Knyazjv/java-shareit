@@ -13,9 +13,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
@@ -37,11 +34,7 @@ public class UserController {
     public ResponseEntity<UserDto> updateUser(@PathVariable Long userId,
                                            @Validated({Update.class}) @RequestBody UserDto newUserDto) {
         log.info("Patch /users/{}, user:{}", userId, newUserDto);
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(newUserDto, userId));
-        } catch (IllegalAccessException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(newUserDto, userId));
     }
 
     @GetMapping(path = "/{userId}")
