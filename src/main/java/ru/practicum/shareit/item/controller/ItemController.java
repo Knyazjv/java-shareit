@@ -36,11 +36,7 @@ public class ItemController {
                                            @RequestBody ItemDto newItemDto,
                                            @PathVariable Long itemId) {
         log.info("Patch /items/{}, userId:{}, item:{}", itemId, userId, newItemDto);
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(itemService.updateItem(newItemDto, userId, itemId));
-        } catch (IllegalAccessException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(itemService.updateItem(newItemDto, userId, itemId));
     }
 
     @GetMapping(value = "/{itemId}")

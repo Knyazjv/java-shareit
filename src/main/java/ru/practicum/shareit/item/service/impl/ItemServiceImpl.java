@@ -10,7 +10,6 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.service.MappingItem;
 import ru.practicum.shareit.user.service.UserService;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +34,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto updateItem(ItemDto itemDto, Long userId, Long itemId) throws IllegalAccessException {
+    public ItemDto updateItem(ItemDto itemDto, Long userId, Long itemId) {
         userService.checkUserIsExist(userId);
         checkItemIsExist(itemId);
         Item item = itemRepository.getItemById(itemId);
@@ -75,13 +74,16 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private ItemDto applyUpdateToItemDto(ItemDto newItemDto, ItemDto itemDto) throws IllegalAccessException {
-        Field[] fields = ItemDto.class.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            if (field.get(newItemDto) == null) {
-                field.set(newItemDto, field.get(itemDto));
-            }
+    private ItemDto applyUpdateToItemDto(ItemDto newItemDto, ItemDto itemDto) {
+        newItemDto.setId(itemDto.getId());
+        if (newItemDto.getName() == null) {
+            newItemDto.setName(itemDto.getName());
+        }
+        if (newItemDto.getDescription() == null) {
+            newItemDto.setDescription(itemDto.getDescription());
+        }
+        if (newItemDto.getAvailable() == null) {
+            newItemDto.setAvailable(itemDto.getAvailable());
         }
         return newItemDto;
     }
