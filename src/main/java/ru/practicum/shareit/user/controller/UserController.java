@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,14 +15,10 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/users")
 public class UserController {
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping
     public ResponseEntity<UserDto> createUser(@Validated({Create.class}) @RequestBody UserDto userDto) {
@@ -40,7 +36,7 @@ public class UserController {
     @GetMapping(path = "/{userId}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
         log.info("Get /users/{}", userId);
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDtoById(userId));
     }
 
     @GetMapping
