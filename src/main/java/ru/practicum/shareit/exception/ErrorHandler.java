@@ -1,6 +1,7 @@
 package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -27,10 +28,31 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleValidationException(final ValidationException e) {
-        log.warn("Email is used: " + e.getMessage());
-        return new ErrorResponse("Error", e.getMessage());
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleException(final CommentException e) {
+        log.warn("Error: ", e);
+        return new ErrorResponse("Error: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(code = HttpStatus.CONFLICT)
+    public ErrorResponse handleException(final DataIntegrityViolationException e) {
+        log.warn("Email is used:", e);
+        return new ErrorResponse("Error: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ErrorResponseSimple handleException(final BookingStateException e) {
+        log.warn("Error: ", e);
+        return new ErrorResponseSimple(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleException(final BookingException e) {
+        log.warn("Error: ", e);
+        return new ErrorResponse("Error: ", e.getMessage());
     }
 
     @ExceptionHandler
