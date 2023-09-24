@@ -2,15 +2,17 @@ package ru.practicum.shareit.booking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
-import ru.practicum.shareit.booking.enumBooking.*;
+import ru.practicum.shareit.booking.enumBooking.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.BookingStateException;
+import ru.practicum.shareit.exception.PaginationException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -28,7 +30,7 @@ public class BookingController {
     public ResponseEntity<BookingDtoResponse> createBooking(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                                             @Valid @RequestBody BookingDtoRequest booking) {
         log.info("Post /bookings");
-        return ResponseEntity.status(HttpStatus.OK).body(bookingService.createBooking(userId, booking));
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(userId, booking));
     }
 
     @PatchMapping(value = "/{bookingId}")
@@ -48,25 +50,43 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<List<BookingDtoResponse>> getAllBookingsByState(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                                                @RequestParam(value = "state",
-                                                                defaultValue = "ALL") String state) {
+                       @RequestParam(value = "state", defaultValue = "ALL") String state,
+                       @RequestParam(value = "from", defaultValue = "0") Integer from,
+                       @RequestParam(value = "size", defaultValue = "10")  Integer size) {
+        if (from < 0) {
+            throw new PaginationException("RequestParam 'from' is negative");
+        }
+        if (size <= 0) {
+            throw new PaginationException("RequestParam 'size' should be positive");
+        }
         log.info("Get /bookings, userId:{} , state:{}", userId, state);
         BookingState bookingState = BookingState.from(state);
         if (bookingState == null) {
             throw new BookingStateException("Unknown state: " + state);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(bookingService.getAllBookingsByState(userId, bookingState));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(bookingService.getAllBookingsByStateWithPagination(userId, bookingState,
+                        PageRequest.of(from / size, size)));
     }
 
     @GetMapping(value = "/owner")
     public ResponseEntity<List<BookingDtoResponse>> getAllOwnerBookings(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                                        @RequestParam(value = "state",
-                                                                defaultValue = "ALL") String state) {
+                       @RequestParam(value = "state", defaultValue = "ALL") String state,
+                       @RequestParam(value = "from", defaultValue = "0") Integer from,
+                       @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        if (from < 0) {
+            throw new PaginationException("RequestParam 'from' is negative");
+        }
+        if (size <= 0) {
+            throw new PaginationException("RequestParam 'size' should be positive");
+        }
         log.info("Get /bookings/owner, userId:{} , state:{}", userId, state);
         BookingState bookingState = BookingState.from(state);
         if (bookingState == null) {
             throw new BookingStateException("Unknown state: " + state);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(bookingService.getAllOwnerBookings(userId, bookingState));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(bookingService.getAllOwnerBookingsWithPagination(userId, bookingState,
+                        PageRequest.of(from / size, size)));
     }
 }

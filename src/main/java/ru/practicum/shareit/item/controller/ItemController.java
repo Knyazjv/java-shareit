@@ -2,9 +2,11 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.PaginationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -43,15 +45,33 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemInfoDto>> getItemsUser(@RequestHeader(X_SHARER_USER_ID) Long userId) {
+    public ResponseEntity<List<ItemInfoDto>> getItemsUser(@RequestHeader(X_SHARER_USER_ID) Long userId,
+                      @RequestParam(value = "from", defaultValue = "0")  Integer from,
+                      @RequestParam(value = "size", defaultValue = "10")  Integer size) {
+        if (from < 0) {
+            throw new PaginationException("RequestParam 'from' is negative");
+        }
+        if (size <= 0) {
+            throw new PaginationException("RequestParam 'size' should be positive");
+        }
         log.info("Get /items, userId:{}", userId);
-        return ResponseEntity.status(HttpStatus.OK).body(itemService.getItemsUser(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(itemService.getItemsUserWithPagination(userId,
+                PageRequest.of(from / size, size)));
     }
 
     @GetMapping(value = "/search")
-    public ResponseEntity<List<ItemDto>> searchItem(@RequestParam String text) {
+    public ResponseEntity<List<ItemDto>> searchItem(@RequestParam String text,
+                      @RequestParam(value = "from", defaultValue = "0") Integer from,
+                      @RequestParam(value = "size", defaultValue = "10")  Integer size) {
+        if (from < 0) {
+            throw new PaginationException("RequestParam 'from' is negative");
+        }
+        if (size <= 0) {
+            throw new PaginationException("RequestParam 'size' should be positive");
+        }
         log.info("Get /items/search, text:{}", text);
-        return ResponseEntity.status(HttpStatus.OK).body(itemService.searchItems(text));
+        return ResponseEntity.status(HttpStatus.OK).body(itemService.searchItemsWithPagination(text,
+                PageRequest.of(from / size, size)));
     }
 
     @PostMapping(value = "/{itemId}/comment")

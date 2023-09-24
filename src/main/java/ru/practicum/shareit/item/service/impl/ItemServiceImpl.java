@@ -1,15 +1,15 @@
 package ru.practicum.shareit.item.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.enumBooking.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.booking.enumBooking.BookingStatus;
 import ru.practicum.shareit.exception.CommentException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.MappingComment;
 import ru.practicum.shareit.item.dto.CommentDtoRequest;
 import ru.practicum.shareit.item.dto.CommentDtoResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -19,6 +19,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.item.service.MappingComment;
 import ru.practicum.shareit.item.service.MappingItem;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -82,15 +83,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemInfoDto> getItemsUser(Long userId) {
+    public List<ItemInfoDto> getItemsUserWithPagination(Long userId, PageRequest pageRequest) {
         userService.getUserById(userId);
         List<Booking> bookings = bookingRepository.findAllByItem_User_Id(userId,
-                                                    Sort.by("start").descending());
-        List<Item> items = itemRepository.findAllByUserId(userId);
+                                                    Sort.by("start").descending(), pageRequest);
+        List<Item> items = itemRepository.findAllByUserId(userId, pageRequest);
         List<Comment> comments = commentRepository.findAllByItem_IdIn(items.stream()
                 .map(Item::getId)
                 .collect(Collectors.toList()));
-        return itemRepository.findAllByUserId(userId).stream()
+        return items.stream()
                 .map(item -> mappingItem.toItemInfoDto(item, getBookingsByItemId(item.getId(), bookings),
                         getCommentsByItemId(item.getId(), comments)))
                 .sorted(Comparator.comparing(ItemInfoDto::getId))
@@ -100,11 +101,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemDto> searchItems(String text) {
+    public List<ItemDto> searchItemsWithPagination(String text, PageRequest pageRequest) {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
-        return itemRepository.searchItems(text).stream()
+        return itemRepository.searchItems(text, pageRequest)
+                .stream()
                 .map(mappingItem::toDto)
                 .collect(Collectors.toList());
     }

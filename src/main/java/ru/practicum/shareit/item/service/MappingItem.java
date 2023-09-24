@@ -6,9 +6,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.enumBooking.BookingStatus;
 import ru.practicum.shareit.booking.service.MappingBooking;
 import ru.practicum.shareit.exception.EmptyException;
-import ru.practicum.shareit.item.MappingComment;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoResponse;
 import ru.practicum.shareit.item.dto.ItemInfoDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -27,11 +25,8 @@ public class MappingItem {
     private final MappingComment mappingComment;
 
     public ItemDto toDto(Item item) {
-        return new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getAvailable());
-    }
-
-    public ItemDtoResponse toDtoResponse(Item item, List<Comment> comments) {
-        return new ItemDtoResponse(item.getId(), item.getName(), item.getDescription(), item.getAvailable(), comments);
+        return new ItemDto(item.getId(), item.getName(), item.getDescription(),
+                item.getAvailable(), item.getRequestId());
     }
 
     public Item toItem(Long itemId, User user, ItemDto itemDto) {
@@ -41,7 +36,8 @@ public class MappingItem {
         if (itemDto.getDescription().isEmpty()) {
             throw new EmptyException("Описание вещи не может быть пустым");
         }
-        return new Item(itemId, user, itemDto.getName(), itemDto.getDescription(), itemDto.getAvailable());
+        return new Item(itemId, user, itemDto.getName(), itemDto.getDescription(),
+                itemDto.getAvailable(), itemDto.getRequestId());
     }
 
     public ItemInfoDto toItemInfoDto(Item item, List<Booking> bookings, List<Comment> comments) {
