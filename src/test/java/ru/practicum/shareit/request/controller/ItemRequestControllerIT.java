@@ -122,6 +122,32 @@ class ItemRequestControllerIT {
 
     @SneakyThrows
     @Test
+    void getAllItemRequestsWithPagination_whenParamFromIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/requests/all")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "-1")
+                        .param("size", "15")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(itemRequestService, never()).getAllItemRequestsWithPagination(any(),any());
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllItemRequestsWithPagination_wheSizeFromIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/requests/all")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "0")
+                        .param("size", "-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(itemRequestService, never()).getAllItemRequestsWithPagination(any(),any());
+    }
+
+    @SneakyThrows
+    @Test
     void getItemRequestByIdTest() {
         List<ItemDto> itemInfoDtos = List.of(itemDto, itemDto2);
         ItemRequestDtoWithItemResponse itemRequestDtoResponse = new ItemRequestDtoWithItemResponse(1L,

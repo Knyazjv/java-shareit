@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import ru.practicum.shareit.exception.PaginationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoResponse;
@@ -18,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -85,17 +83,6 @@ class ItemRequestControllerTest {
         assert responseBody != null;
         equalsItemRequestDtoWithItem(itemRequestDtoWithItem, responseBody.get(0));
         equalsItemRequestDtoWithItem(itemRequestDtoWithItem2, responseBody.get(1));
-    }
-
-    @Test
-    void getAllItemRequestsWithPagination_whenFromAndSizeNegative() {
-        Long userId = 1L;
-        Exception e = assertThrows(PaginationException.class, () -> itemRequestController
-                .getAllItemRequestsWithPagination(-1, 1, userId));
-        assertEquals("RequestParam 'from' is negative", e.getMessage());
-        e = assertThrows(PaginationException.class, () -> itemRequestController
-                .getAllItemRequestsWithPagination(1, -1, userId));
-        assertEquals("RequestParam 'size' should be positive", e.getMessage());
     }
 
     @Test

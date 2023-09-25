@@ -73,13 +73,4 @@ class ErrorHandlerTest {
         assertNotNull(errorResponse);
         assertEquals(errorResponse.getDescription(), exception.getMessage());
     }
-
-    @Test
-    void handlePaginationExceptionTest() {
-        PaginationException exception = new PaginationException("Message");
-        ErrorResponse errorResponse = errorHandler.handlePaginationException(exception);
-
-        assertNotNull(errorResponse);
-        assertEquals(errorResponse.getDescription(), exception.getMessage());
-    }
 }

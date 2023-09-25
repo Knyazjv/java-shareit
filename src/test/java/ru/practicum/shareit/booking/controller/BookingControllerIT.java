@@ -188,6 +188,32 @@ class BookingControllerIT {
 
     @SneakyThrows
     @Test
+    void getAllBookingsByStateTest_whenParamFromIsNegative_thenResponseIsBadRequest() {
+       mockMvc.perform(get("/bookings")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "-1")
+                        .param("size", "15")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+       verify(bookingService, never()).getAllBookingsByStateWithPagination(any(),any(), any());
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllBookingsByStateTest_whenParamSizeIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/bookings")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "0")
+                        .param("size", "-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(bookingService, never()).getAllBookingsByStateWithPagination(any(),any(), any());
+    }
+
+    @SneakyThrows
+    @Test
     void getAllOwnerBookingsTest() {
         BookingDtoResponse bookingResponse = new BookingDtoResponse(1L, userDto, itemDto, BookingStatus.WAITING,
                 LocalDateTime.now(), LocalDateTime.now().plusDays(10));
@@ -196,7 +222,7 @@ class BookingControllerIT {
         List<BookingDtoResponse> bookingDtoResponseList = List.of(bookingResponse, bookingResponse2);
         when(bookingService.getAllOwnerBookingsWithPagination(any(),any(),any())).thenReturn(bookingDtoResponseList);
 
-        String result = mockMvc.perform(get("/owner")
+        String result = mockMvc.perform(get("/bookings/owner")
                         .header(X_SHARER_USER_ID, userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
@@ -208,5 +234,31 @@ class BookingControllerIT {
         assertEquals(mapper.writeValueAsString(bookingDtoResponseList), result);
         verify(bookingService, times(1))
                 .getAllOwnerBookingsWithPagination(any(),any(), any());
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllOwnerBookingsTest_whenParamSizeIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/bookings/owner")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "0")
+                        .param("size", "-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(bookingService, never()).getAllOwnerBookingsWithPagination(any(),any(), any());
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllOwnerBookingsTest_whenParamFromIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/bookings/owner")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "-1")
+                        .param("size", "5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(bookingService, never()).getAllOwnerBookingsWithPagination(any(),any(), any());
     }
 }

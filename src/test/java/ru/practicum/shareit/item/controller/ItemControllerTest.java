@@ -8,7 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
-import ru.practicum.shareit.exception.PaginationException;
 import ru.practicum.shareit.item.dto.CommentDtoRequest;
 import ru.practicum.shareit.item.dto.CommentDtoResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -84,17 +83,6 @@ class ItemControllerTest {
     }
 
     @Test
-    void getItemsUser_whenParamFromAndSizeIsNegative_thenPaginationExceptionThrown() {
-        Long userId = 1L;
-        Exception e = assertThrows(PaginationException.class, () -> itemController
-                .getItemsUser(userId, -1, 1));
-        assertEquals("RequestParam 'from' is negative", e.getMessage());
-        e = assertThrows(PaginationException.class, () -> itemController
-                .getItemsUser(userId, 1, -1));
-        assertEquals("RequestParam 'size' should be positive", e.getMessage());
-    }
-
-    @Test
     void searchItem_whenInvoked_thenResponseStatusOkWithItemDtoInBody() {
         List<ItemDto> itemDtos = List.of(itemDto);
         when(itemService.searchItemsWithPagination(any(), any())).thenReturn(itemDtos);
@@ -109,8 +97,8 @@ class ItemControllerTest {
 
     @Test
     void searchItem_whenFromAndSizeNegative() {
-        assertThrows(PaginationException.class, () -> itemController.searchItem("text", -1, 1));
-        assertThrows(PaginationException.class, () -> itemController.searchItem("text", 0, -1));
+        assertThrows(IllegalArgumentException.class, () -> itemController.searchItem("text", -1, 1));
+        assertThrows(IllegalArgumentException.class, () -> itemController.searchItem("text", 0, -1));
     }
 
     @Test

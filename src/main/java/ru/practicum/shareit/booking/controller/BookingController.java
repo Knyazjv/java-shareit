@@ -6,21 +6,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.enumBooking.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.BookingStateException;
-import ru.practicum.shareit.exception.PaginationException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
+@Validated
 public class BookingController {
     private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final BookingService bookingService;
@@ -51,14 +53,10 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<List<BookingDtoResponse>> getAllBookingsByState(@RequestHeader(X_SHARER_USER_ID) Long userId,
                        @RequestParam(value = "state", defaultValue = "ALL") String state,
-                       @RequestParam(value = "from", defaultValue = "0") Integer from,
-                       @RequestParam(value = "size", defaultValue = "10")  Integer size) {
-        if (from < 0) {
-            throw new PaginationException("RequestParam 'from' is negative");
-        }
-        if (size <= 0) {
-            throw new PaginationException("RequestParam 'size' should be positive");
-        }
+                       @RequestParam(value = "from", defaultValue = "0")
+                       @Min(value = 0, message = "RequestParam 'from' is negative") Integer from,
+                       @RequestParam(value = "size", defaultValue = "10")
+                       @Min(value = 1, message = "RequestParam 'size' should be positive") Integer size) {
         log.info("Get /bookings, userId:{} , state:{}", userId, state);
         BookingState bookingState = BookingState.from(state);
         if (bookingState == null) {
@@ -72,14 +70,10 @@ public class BookingController {
     @GetMapping(value = "/owner")
     public ResponseEntity<List<BookingDtoResponse>> getAllOwnerBookings(@RequestHeader(X_SHARER_USER_ID) Long userId,
                        @RequestParam(value = "state", defaultValue = "ALL") String state,
-                       @RequestParam(value = "from", defaultValue = "0") Integer from,
-                       @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        if (from < 0) {
-            throw new PaginationException("RequestParam 'from' is negative");
-        }
-        if (size <= 0) {
-            throw new PaginationException("RequestParam 'size' should be positive");
-        }
+                       @RequestParam(value = "from", defaultValue = "0")
+                       @Min(value = 0, message = "RequestParam 'from' is negative") Integer from,
+                       @RequestParam(value = "size", defaultValue = "10")
+                       @Min(value = 1, message = "RequestParam 'size' should be positive") Integer size) {
         log.info("Get /bookings/owner, userId:{} , state:{}", userId, state);
         BookingState bookingState = BookingState.from(state);
         if (bookingState == null) {

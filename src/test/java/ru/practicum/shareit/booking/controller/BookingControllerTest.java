@@ -11,14 +11,12 @@ import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.enumBooking.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.PaginationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -75,26 +73,6 @@ class BookingControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assert responseBody != null;
         equalsBookingDtoResponse(bookingDtoResponse, responseBody);
-    }
-
-    @Test
-    void getAllBookingsByStateTest() {
-        Exception e = assertThrows(PaginationException.class, () -> bookingController
-                .getAllBookingsByState(userId, null, -1, 1));
-        assertEquals("RequestParam 'from' is negative", e.getMessage());
-        e = assertThrows(PaginationException.class, () -> bookingController
-                .getAllBookingsByState(userId, null, 1, -1));
-        assertEquals("RequestParam 'size' should be positive", e.getMessage());
-    }
-
-    @Test
-    void getAllOwnerBookingsTest() {
-        Exception e = assertThrows(PaginationException.class, () -> bookingController
-                .getAllOwnerBookings(userId, null, -1, 1));
-        assertEquals("RequestParam 'from' is negative", e.getMessage());
-        e = assertThrows(PaginationException.class, () -> bookingController
-                .getAllOwnerBookings(userId, null, 1, -1));
-        assertEquals("RequestParam 'size' should be positive", e.getMessage());
     }
 
     private void equalsBookingDtoResponse(BookingDtoResponse br, BookingDtoResponse otherBr) {

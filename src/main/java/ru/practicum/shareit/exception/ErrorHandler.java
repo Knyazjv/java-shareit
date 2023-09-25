@@ -59,11 +59,4 @@ public class ErrorHandler {
         log.warn("Item name or description is empty: " + e.getMessage());
         return new ErrorResponse("Error", e.getMessage());
     }
-
-    @ExceptionHandler
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public ErrorResponse handlePaginationException(final PaginationException e) {
-        log.warn("Error: ", e);
-        return new ErrorResponse("Error: ", e.getMessage());
-    }
 }

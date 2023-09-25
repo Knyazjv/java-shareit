@@ -144,7 +144,32 @@ class ItemControllerIT {
 
         assertEquals(mapper.writeValueAsString(itemInfoDtos), result);
         verify(itemService, times(1)).getItemsUserWithPagination(any(), any());
+    }
 
+    @SneakyThrows
+    @Test
+    void getItemsUserTest_whenParamSizeIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/items")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "0")
+                        .param("size", "-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(itemService, never()).getItemsUserWithPagination(any(),any());
+    }
+
+    @SneakyThrows
+    @Test
+    void getItemsUserTest_whenParamFromIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/items")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "-1")
+                        .param("size", "15")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(itemService, never()).getItemsUserWithPagination(any(),any());
     }
 
     @SneakyThrows
@@ -168,7 +193,32 @@ class ItemControllerIT {
 
         assertEquals(mapper.writeValueAsString(itemInfoDtos), result);
         verify(itemService, times(1)).searchItemsWithPagination(any(), any());
+    }
 
+    @SneakyThrows
+    @Test
+    void searchItemTest_whenParamFromIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/items/search")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "-1")
+                        .param("size", "15")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(itemService, never()).searchItemsWithPagination(any(),any());
+    }
+
+    @SneakyThrows
+    @Test
+    void searchItemTest_whenParamSizeIsNegative_thenResponseIsBadRequest() {
+        mockMvc.perform(get("/items/search")
+                        .header(X_SHARER_USER_ID, userId)
+                        .param("from", "-1")
+                        .param("size", "15")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+        verify(itemService, never()).searchItemsWithPagination(any(),any());
     }
 
     @SneakyThrows
