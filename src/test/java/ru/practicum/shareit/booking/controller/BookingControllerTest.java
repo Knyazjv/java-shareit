@@ -11,14 +11,18 @@ import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.enumBooking.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.BookingStateException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingControllerTest {
@@ -73,6 +77,46 @@ class BookingControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assert responseBody != null;
         equalsBookingDtoResponse(bookingDtoResponse, responseBody);
+    }
+
+    @Test
+    void getAllBookingsByStateTest() {
+        when(bookingService.getAllBookingsByStateWithPagination(any(), any(), any()))
+                .thenReturn(List.of(bookingDtoResponse));
+
+        ResponseEntity<List<BookingDtoResponse>> response = bookingController
+                .getAllBookingsByState(userId,"ALL", 0, 10);
+        BookingDtoResponse responseBody = Objects.requireNonNull(response.getBody()).get(0);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assert responseBody != null;
+        equalsBookingDtoResponse(bookingDtoResponse, responseBody);
+    }
+
+    @Test
+    void getAllBookingsByStateTest_whenStateUnknown() {
+        assertThrows(BookingStateException.class, () -> bookingController
+                .getAllBookingsByState(userId,"123", 0, 10));
+        verify(bookingService, never()).getAllBookingsByStateWithPagination(any(), any(), any());
+    }
+
+    @Test
+    void getAllAllOwnerBookingsTest() {
+        when(bookingService.getAllOwnerBookingsWithPagination(any(), any(), any()))
+                .thenReturn(List.of(bookingDtoResponse));
+
+        ResponseEntity<List<BookingDtoResponse>> response = bookingController
+                .getAllOwnerBookings(userId,"ALL", 0, 10);
+        BookingDtoResponse responseBody = Objects.requireNonNull(response.getBody()).get(0);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assert responseBody != null;
+        equalsBookingDtoResponse(bookingDtoResponse, responseBody);
+    }
+
+    @Test
+    void getAllOwnerBookingsTest_whenStateUnknown() {
+        assertThrows(BookingStateException.class, () -> bookingController
+                .getAllOwnerBookings(userId,"123", 0, 10));
+        verify(bookingService, never()).getAllOwnerBookingsWithPagination(any(), any(), any());
     }
 
     private void equalsBookingDtoResponse(BookingDtoResponse br, BookingDtoResponse otherBr) {
