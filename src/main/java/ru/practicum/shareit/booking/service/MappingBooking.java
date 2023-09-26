@@ -28,7 +28,7 @@ public class MappingBooking {
         Item item = booking.getItem();
         return new BookingDtoResponse(booking.getId(),
                 new UserDto(user.getId(), user.getName(), user.getEmail()),
-                new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getAvailable()),
+                new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getAvailable(), null),
                 booking.getStatus(),
                 booking.getStart(),
                 booking.getEnd());
