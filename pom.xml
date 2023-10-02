@@ -21,6 +21,13 @@
 		<postgresql>42.3.8</postgresql>
 	</properties>
 
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>gateway</module>
+		<module>server</module>
+	</modules>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
