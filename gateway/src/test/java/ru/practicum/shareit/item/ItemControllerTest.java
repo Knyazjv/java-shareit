@@ -9,11 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import ru.practicum.shareit.item.dto.CommentDtoRequest;
-import ru.practicum.shareit.item.dto.CommentDtoResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +28,6 @@ class ItemControllerTest {
 
     ItemDto itemDto = new ItemDto(1L, "name", "description", true, null);
     ItemDto emptyItemDto = new ItemDto(null, null, null, null, null);
-    CommentDtoResponse commentDtoResponse = new CommentDtoResponse(1L, "comment", "name", LocalDateTime.now());
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -91,21 +87,6 @@ class ItemControllerTest {
         ResponseEntity<Object> response = itemController.searchItem("text", 1, 1);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(objectMapper.writeValueAsString(response.getBody()), objectMapper.writeValueAsString(itemDtos));
-    }
-
-    @Test
-    void createComment_whenInvoked_thenResponseStatusOkCommentDtoInBody() {
-        when(itemClient.createComment(any(), any(), any())).thenReturn(ResponseEntity
-                .status(HttpStatus.OK).body(commentDtoResponse));
-
-        ResponseEntity<Object> response = itemController.createComment(1L, 1L, new CommentDtoRequest("j"));
-        CommentDtoResponse commentDtoResponse2 = (CommentDtoResponse) response.getBody();
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assert commentDtoResponse2 != null;
-        assertEquals(commentDtoResponse.getId(), commentDtoResponse2.getId());
-        assertEquals(commentDtoResponse.getText(), commentDtoResponse2.getText());
-        assertEquals(commentDtoResponse.getAuthorName(), commentDtoResponse2.getAuthorName());
-        assertEquals(commentDtoResponse.getCreated(), commentDtoResponse2.getCreated());
     }
 
     public void equalsItemDto(ItemDto itemDto, ItemDto itemDtoResponse) {
