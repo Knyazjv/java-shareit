@@ -28,22 +28,22 @@ public class BookingController {
 	@Transactional
 	@PostMapping
 	public ResponseEntity<Object> createBooking(@RequestHeader(X_SHARER_USER_ID) Long userId,
-															@Valid @RequestBody BookingDtoRequest booking) {
+									@Valid @RequestBody BookingDtoRequest booking) {
 		log.info("Post /bookings");
 		return bookingClient.createBooking(userId, booking);
 	}
 
 	@PatchMapping(value = "/{bookingId}")
 	public ResponseEntity<Object> confirmationBooking(@RequestHeader(X_SHARER_USER_ID) Long userId,
-																  @PathVariable Long bookingId,
-																  @RequestParam(value = "approved") Boolean approved) {
+									@PathVariable Long bookingId,
+									@RequestParam(value = "approved") Boolean approved) {
 		log.info("Patch /bookings/{}, userId:{}", bookingId, userId);
 		return bookingClient.confirmationBooking(userId, bookingId, approved);
 	}
 
 	@GetMapping(value = "/{bookingId}")
 	public ResponseEntity<Object> getBookingById(@RequestHeader(X_SHARER_USER_ID) Long userId,
-															 @PathVariable Long bookingId) {
+									@PathVariable Long bookingId) {
 		log.info("Get /bookings/{}, userId:{}", bookingId, userId);
 		return bookingClient.getBookingById(userId, bookingId);
 	}

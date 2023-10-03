@@ -38,7 +38,7 @@ public class ItemController {
 
     @GetMapping(value = "/{itemId}")
     public ResponseEntity<Object> getItemById(@PathVariable Long itemId,
-                                                   @RequestHeader(X_SHARER_USER_ID) Long userId) {
+                                            @RequestHeader(X_SHARER_USER_ID) Long userId) {
         log.info("Get /items/{}", itemId);
         return itemClient.getItemById(itemId, userId);
     }
@@ -65,8 +65,8 @@ public class ItemController {
 
     @PostMapping(value = "/{itemId}/comment")
     public ResponseEntity<Object> createComment(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                                            @PathVariable Long itemId,
-                                                            @Valid @RequestBody CommentDtoRequest comment) {
+                                               @PathVariable Long itemId,
+                                               @Valid @RequestBody CommentDtoRequest comment) {
         log.info("Post /items/{}/comment, userId:{}", itemId, userId);
         return itemClient.createComment(userId, itemId, comment);
     }
