@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
@@ -25,7 +24,6 @@ public class BookingController {
 
 	private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
-	@Transactional
 	@PostMapping
 	public ResponseEntity<Object> createBooking(@RequestHeader(X_SHARER_USER_ID) Long userId,
 									@Valid @RequestBody BookingDtoRequest booking) {
